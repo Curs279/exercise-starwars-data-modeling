@@ -7,26 +7,57 @@ from eralchemy2 import render_er
 
 Base = declarative_base()
 
-class Person(Base):
-    __tablename__ = 'person'
-    # Here we define columns for the table person
-    # Notice that each column is also a normal Python instance attribute.
+class User(Base): # parent
+    __tablename__ = 'user'
+
+    id = Column(Integer, primary_key=True, nullable=False, )
+    name = Column(String(100), nullable=False)
+    last_name = Column(String(100), nullable=False)
+    email = Column(String(100), nullable=False)
+    password = Column(String(100), nullable=False)
+    users = relationship("Favorites")
+
+class Favorites(Base): # children
+    __tablename__ = 'favorites'
+
     id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    user = relationship("User", back_populates="users")
+    id_characters = Column(Integer, ForeignKey('characters.id'))
+    characters = relationship("Characters")
+    id_planets = Column(Integer, ForeignKey('planets.id'))
+    planets = relationship("Planets")
+    id_vehicles = Column(Integer, ForeignKey('vehicles.id'))
+    vehicles = relationship("Vehicles")
 
-class Address(Base):
-    __tablename__ = 'address'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
+class Characters(Base):
+    __tablename__ = 'characters'
+
     id = Column(Integer, primary_key=True)
-    street_name = Column(String(250))
-    street_number = Column(String(250))
-    post_code = Column(String(250), nullable=False)
-    person_id = Column(Integer, ForeignKey('person.id'))
-    person = relationship(Person)
+    type = Column(String(100), nullable=False)
+    name = Column(String(100), nullable=False)
+    birth_year = Column(Integer)
+    gender = Column(String(20))
+    height = Column(Integer)
+    
+class Planets(Base):
+    __tablename__ = 'planets'
 
-    def to_dict(self):
-        return {}
+    id = Column(Integer, primary_key=True)
+    type = Column(String(100), nullable=False)
+    name = Column(String(100), nullable=False)
+    favorites = relationship("Favorites")
 
-## Draw from SQLAlchemy base
+class Vehicles(Base):
+    __tablename__ ='vehicles'
+
+    id = Column(Integer, primary_key=True)
+    type = Column(String(100), nullable=False)
+    name = Column(String(100), nullable=False)
+    make = Column(String(100))
+    vehicle_class = Column(String(100))
+    passengers = Column(Integer)
+
+
+
 render_er(Base, 'diagram.png')
